@@ -1,0 +1,45 @@
+<div class="auth-container">
+    <div class="auth-card">
+        <h2>Login</h2>
+        
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+          <div class="form-group">
+            <label for="email">Email:</label>
+            <input 
+              type="email" 
+              id="email" 
+              formControlName="email"
+              class="form-control"
+              [class.error]="isFieldInvalid('email')"
+              placeholder="Digite seu email"
+            >
+            <div class="error-message" *ngIf="isFieldInvalid('email')">
+              Email é obrigatório e deve ser válido
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Senha:</label>
+            <input 
+              type="password" 
+              id="password" 
+              formControlName="password"
+              class="form-control"
+              [class.error]="isFieldInvalid('password')"
+              placeholder="Digite sua senha"
+            >
+            <div class="error-message" *ngIf="isFieldInvalid('password')">
+              Senha é obrigatória
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary" [disabled]="loginForm.invalid">
+            Entrar
+          </button>
+        </form>
+
+        <div class="message" *ngIf="message" [class]="messageType">
+          {{ message }}
+        </div>
+    </div>
+</div>
