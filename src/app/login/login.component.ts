@@ -1,11 +1,36 @@
 import { Component } from '@angular/core';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
 interface User {
   email: string;
   password: string;
+}
+
+export function passwordLengthValidator(minLength: number): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const value = control.value || '';
+    return value.length >= minLength ? null : { passwordTooShort: { requiredLength: minLength, actualLength: value.length } };
+  };
+}
+
+export function caracpasswordValidator(control: AbstractControl): ValidationErrors | null {
+  const value = control.value || '';
+
+  const hasUpperCase = /[A-Z]/.test(value);
+  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>_]/.test(value);
+
+  const valid = hasUpperCase && hasSpecialChar;
+
+  return valid
+    ? null
+    : {
+        passwordStrength: {
+          hasUpperCase,
+          hasSpecialChar,
+        },
+      };
 }
 
 @Component({
@@ -20,15 +45,15 @@ export class LoginComponent {
   messageType = '';
   
   private users: User[] = [
-    { email: 'usuario@exemplo.com', password: '123456' },
-    { email: 'admin@teste.com', password: 'admin123' },
-    { email: 'teste@gmail.com', password: 'senha123' }
+    { email: 'usuario@exemplo.com', password: 'U_123456' },
+    { email: 'admin@teste.com', password: 'Admin_123' },
+    { email: 'teste@gmail.com', password: 'Senha_123' }
   ];
 
   constructor(private fb: FormBuilder) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required]]
+      password: ['', [Validators.required, passwordLengthValidator(6), caracpasswordValidator]]
     });
   }
 
@@ -46,14 +71,11 @@ export class LoginComponent {
     const email = this.loginForm.get('email')?.value;
     const password = this.loginForm.get('password')?.value;
 
-    console.log('Tentando login com:', email);
     this.login(email, password);
   }
 
   private login(email: string, password: string): void {
     const user = this.users.find(u => u.email === email);
-    
-    console.log('Usuário encontrado:', user);
     
     if (!user) {
       this.showMessage('Não há uma conta com esse email', 'error');
